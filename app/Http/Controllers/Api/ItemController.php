@@ -19,6 +19,7 @@ class ItemController extends Controller
     {
         $keyword = $request->query('keyword');
         $sort = $request->query('sort');
+        $status = $request->query('status');
         // $keyword = $request->input('keyword'); 何の違い
 
         $query = Item::query();
@@ -29,6 +30,10 @@ class ItemController extends Controller
 
         $query->when($sort == 'name', function ($query) {
             return $query->orderBy('name', 'asc');
+        });
+
+        $query->when($status, function ($query, $status) {
+            return $query->where('status', $status);
         });
 
         $items = $query->latest()->get();
