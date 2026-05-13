@@ -26,7 +26,7 @@ class StoreItemRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'category' => ['required', 'max:255'],
             'location' => ['nullable', 'max:255'],
-            'status' => ['required', 'in:available, in_use, maintenance'],
+            'status' => ['required', 'in:available,in_use,maintenance'],
             'note' => ['nullable', 'max:255'],
         ];
     }

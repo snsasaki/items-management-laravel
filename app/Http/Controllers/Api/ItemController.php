@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreItemRequest;
+use App\Http\Resources\ItemResource;
 use App\Models\Item;
 use Illuminate\Http\Request;
 
@@ -14,9 +15,10 @@ class ItemController extends Controller
      */
     public function index()
     {
-        return response()->json([
-            "message" => '社内備品管理APIです',
-        ]);
+        $items = Item::latest()
+            ->get();
+
+        return ItemResource::collection($items);
     }
 
     /**
@@ -28,7 +30,7 @@ class ItemController extends Controller
 
         return response()->json([
             'message' => 'Todoを作成しました。',
-            'data' => $item,
+            'data' => new ItemResource($item),
         ], 201);
     }
 
