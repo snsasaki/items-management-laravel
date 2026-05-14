@@ -12,7 +12,6 @@ class ItemApiTest extends TestCase
 
     public function test_can_get_item_list(): void
     {
-
         Item::factory()
             ->count(5)
             ->create();
@@ -182,5 +181,53 @@ class ItemApiTest extends TestCase
             ->assertJsonValidationErrors([
                 'status',
             ]);
+    }
+    public function test_returns_404_when_item_not_found(): void
+    {
+        $response = $this->getJson('/api/items/999999');
+
+        $response->assertNotFound();
+    }
+    public function test_can_create_item(): void
+    {
+        $response = $this->postJson('/api/items', [
+            'name' => 'テストモニター',
+            'category' => '周辺機器',
+            'location' => '東京本社',
+            'status' => 'available',
+            'note' => '追加課題用',
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.name', 'テストモニター');
+
+        $this->assertDatabaseHas('items', [
+            'name' => 'テストモニター',
+            'category' => '周辺機器',
+            'status' => 'available',
+        ]);
+    }
+    public function test_can_update_item(): void
+    {
+        $item = Item::factory()->create([
+            'name' => '変更前備品',
+            'status' => 'available',
+        ]);
+
+        $response = $this->patchJson("/api/items/{$item->id}", [
+            'name' => '変更後備品',
+            'status' => 'in_use',
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('data.name', '変更後備品')
+            ->assertJsonPath('data.status', 'in_use');
+
+        $this->assertDatabaseHas('items', [
+            'id' => $item->id,
+            'name' => '変更後備品',
+            'status' => 'in_use',
+        ]);
     }
 }
