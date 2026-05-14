@@ -13,11 +13,23 @@ class ItemApiTest extends TestCase
     {
         $response = $this->getJson('/api/items');
 
-        // json型のオブジェクト,data が存在することを確認している
+        // それぞれのキーの値が含まれることを確認している
         $response
             ->assertStatus(200)
             ->assertJsonStructure([
-                'data',
+                'data' => [
+                    '*' => [
+                        'id',
+                        'name',
+                        'category',
+                        'location',
+                        'status',
+                        'status_label',
+                        'note',
+                        'created_date',
+                        'updated_date',
+                    ],
+                ],
             ]);
     }
 }
