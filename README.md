@@ -31,7 +31,7 @@
     $ php artisan route:list -v
     ```
 
-- TBD
+- テスト（特定）
     ```shell
-    $ php artisan
+    $ php artisan test --filter={ItemApiTest}
     ```
