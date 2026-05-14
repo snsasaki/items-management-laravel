@@ -43,6 +43,7 @@ class ItemApiTest extends TestCase
                         'name',
                         'category',
                         'location',
+                        'status',
                         'status_label',
                         'note',
                         'created_date',
@@ -68,7 +69,7 @@ class ItemApiTest extends TestCase
             ->assertJsonPath('data.id', $item->id)
             ->assertJsonPath('data.name', 'テスト用PC')
             ->assertJsonPath('data.category', 'PC')
-            // ->assertJsonPath('data.status', 'available')
+            ->assertJsonPath('data.status', 'available')
             ->assertJsonPath('data.status_label', '利用可能');
     }
     public function test_factory_creates_item_in_database(): void
@@ -84,5 +85,102 @@ class ItemApiTest extends TestCase
             'category' => '周辺機器',
             'status' => 'available',
         ]);
+    }
+    public function test_store_returns_validation_errors(): void
+    {
+        $response = $this->postJson('/api/items', [
+            'name' => '',
+            'category' => '',
+            'status' => 'broken',
+        ]);
+
+        $response
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors([
+                'name',
+                'category',
+                'status',
+            ]);
+    }
+    public function test_invalid_item_is_not_saved(): void
+    {
+        $this->postJson('/api/items', [
+            'name' => '',
+            'category' => '',
+            'status' => 'broken',
+        ]);
+
+        $this->assertDatabaseCount('items', 0);
+    }
+    public function test_store_accepts_valid_item_data(): void
+    {
+        $response = $this->postJson('/api/items', [
+            'name' => 'テスト用PC',
+            'category' => 'PC',
+            'location' => '東京本社',
+            'status' => 'available',
+            'note' => 'バリデーション正常系テスト',
+        ]);
+
+        $response
+            ->assertCreated()
+            ->assertJsonPath('data.name', 'テスト用PC')
+            ->assertJsonPath('data.status', 'available');
+
+        $this->assertDatabaseHas('items', [
+            'name' => 'テスト用PC',
+            'category' => 'PC',
+            'status' => 'available',
+        ]);
+    }
+    public function test_update_returns_validation_errors(): void
+    {
+        $item = Item::factory()->create();
+
+        $response = $this->patchJson("/api/items/{$item->id}", [
+            'name' => '',
+            'status' => 'broken',
+        ]);
+
+        $response
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors([
+                'name',
+                'status',
+            ]);
+    }
+    public function test_invalid_update_does_not_change_item(): void
+    {
+        $item = Item::factory()->create([
+            'name' => '変更前の備品',
+            'category' => 'PC',
+            'status' => 'available',
+        ]);
+
+        $this->patchJson("/api/items/{$item->id}", [
+            'name' => '',
+            'status' => 'broken',
+        ]);
+
+        $this->assertDatabaseHas('items', [
+            'id' => $item->id,
+            'name' => '変更前の備品',
+            'category' => 'PC',
+            'status' => 'available',
+        ]);
+    }
+    public function test_status_must_be_allowed_value(): void
+    {
+        $response = $this->postJson('/api/items', [
+            'name' => 'テスト備品',
+            'category' => 'PC',
+            'status' => 'unknown',
+        ]);
+
+        $response
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors([
+                'status',
+            ]);
     }
 }

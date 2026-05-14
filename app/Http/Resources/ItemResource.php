@@ -19,7 +19,7 @@ class ItemResource extends JsonResource
             'name' => $this->name,
             'category' => $this->category,
             'location' => $this->location,
-            // 'status' => $this->status,
+            'status' => $this->status,
             'status_label' => $this->statusLabel(),
             'note' => $this->note,
             'created_date' => $this->created_at?->format('Y-m-d'),
