@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ItemController;
 use Illuminate\Http\Request;
@@ -15,6 +16,10 @@ Route::get('/test', function () {
         'message' => 'API is working.',
     ]);
 });
+// AuthController
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
 Route::apiResource('items', ItemController::class);
 
