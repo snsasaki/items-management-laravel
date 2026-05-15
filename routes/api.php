@@ -9,6 +9,13 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+// TODO: 削除予定確認用ルート
+Route::get('/test', function () {
+    return response()->json([
+        'message' => 'API is working.',
+    ]);
+});
+
 Route::apiResource('items', ItemController::class);
 
 Route::apiResource('categories', CategoryController::class);
