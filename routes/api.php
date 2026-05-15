@@ -25,4 +25,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('items', ItemController::class);
 });
 
+Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
+    return response()->json([
+        'user' => [
+            'id' => $request->user()->id,
+            'name' => $request->user()->name,
+            'email' => $request->user()->email,
+        ],
+    ]);
+});
+
 Route::apiResource('categories', CategoryController::class);
